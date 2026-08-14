@@ -1,0 +1,880 @@
+{
+  "name": "Linkedin Auto Poster 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -544,
+        -208
+      ],
+      "id": "1402ebaf-df1a-42f7-b686-befc6d71a04b",
+      "name": "Telegram Trigger",
+      "webhookId": "9b309df6-3ec0-4102-9e78-3e12ebb98eb2",
+      "credentials": {
+        "telegramApi": {
+          "id": "e1W9mvxSdzSdO91l",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7585d800-8a55-485a-873c-df79168c20a5",
+              "name": "update_id",
+              "value": "={{ $json.update_id }}",
+              "type": "number"
+            },
+            {
+              "id": "484ccee0-09a8-4469-aeba-9f0e2b068c4f",
+              "name": "message_id",
+              "value": "={{ $json.message.message_id }}",
+              "type": "number"
+            },
+            {
+              "id": "88d7b002-e1e9-48dd-9359-6476c8238505",
+              "name": "chat_id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "96bab26c-4703-4fa8-a9e3-62c748324bf3",
+              "name": "message_text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        -288
+      ],
+      "id": "9418726e-8a08-4f94-8241-cb56adedfa85",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.normalizedText }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2396bb8f-007e-4a73-8b30-36aeb4ea16d0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "09346c6d-892a-4b48-a690-90f72a340c7e",
+                    "leftValue": "={{ $json.normalizedText }}",
+                    "rightValue": "cancel",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancel"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        -304
+      ],
+      "id": "6e03e0cf-1a38-4375-b0a9-a34223c7c7e4",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "❌ Draft cancelled successfully.  Send another topic whenever you're ready.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        -272
+      ],
+      "id": "65516028-aad7-441e-8c43-474093d70db7",
+      "name": "Send a text message",
+      "webhookId": "b3fcc575-3634-41cb-bf44-4cc57f0ad9ff",
+      "credentials": {
+        "telegramApi": {
+          "id": "e1W9mvxSdzSdO91l",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a LinkedIn post about:\n\n{{ $json.message_text }}\n\nThe post should be based on QueenEagle's writing style.",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are QueenEagle's professional LinkedIn ghostwriter.\n\nYou write for Queen Ikwuji, an AI Automation Engineer and Educator who builds practical AI automation systems using tools like n8n, Supabase, OpenAI, Google Gemini, Apify, Lovable, Groq, Bolt.new, Airtable, and APIs.\n\nWriting style:\n- Conversational and natural.\n- Confident but not arrogant.\n- Educational and practical.\n- Avoid hype and exaggerated marketing language.\n- Explain technical concepts in plain English.\n- Write like someone sharing what they genuinely built.\n\nStructure:\n1. Strong opening hook.\n2. Explain the real problem.\n3. Describe the automation or AI solution.\n4. Mention the tools used naturally.\n5. Share one lesson or insight.\n6. End with a thoughtful question or CTA.\n\nRequirements:\n- 120–220 words.\n- Short paragraphs.\n- No emojis unless the topic naturally suits them.\n- No hashtags.\n- No markdown.\n- Output only the final LinkedIn post."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        -64
+      ],
+      "id": "1fd3717a-0872-424b-a3f1-734a8536dc23",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        320,
+        208
+      ],
+      "id": "5b7ff9ae-532c-4663-ba88-ec768982b972",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zuKPSC3hP4nLJmqP",
+          "name": "OpenRouter account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        208
+      ],
+      "id": "af33fd0e-df89-4334-9ed4-33a03ae29c10",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tM3LdFyqqcpgUP77",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        -16
+      ],
+      "id": "a4e8b5ce-2b2b-458e-ab4a-0329dc681e1b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.draft_text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "d760f10f-c143-4b30-ba43-d7ffdc0885e2",
+      "name": "Send a text message1",
+      "webhookId": "38bc46d4-0ac4-4350-bcbe-3c1eaf6366dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "e1W9mvxSdzSdO91l",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://utuivhrufrfzhdnmvxuy.supabase.co/rest/v1/pending_drafts?on_conflict=chat_id",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  \"chat_id\": $(\"Edit Fields\").first().json.chat_id,\n  \"topic\": $(\"Edit Fields\").first().json.message_text,\n  \"draft_text\": $json.output,\n  \"status\": \"pending\"\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        864,
+        -16
+      ],
+      "id": "de3cf00b-d049-4b19-ba03-ef0afa8f6c0b",
+      "name": "Supabase"
+    },
+    {
+      "parameters": {
+        "url": "=https://utuivhrufrfzhdnmvxuy.supabase.co/rest/v1/pending_drafts?select=*&chat_id=eq.{{$json.chat_id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        320,
+        -432
+      ],
+      "id": "6e53c4f1-c16e-4edd-baef-6bd809abb884",
+      "name": "Retrieve pending draft from Supabase"
+    },
+    {
+      "parameters": {
+        "url": "https://api.linkedin.com/v2/userinfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        -448
+      ],
+      "name": "Get LinkedIn User Info",
+      "id": "61cfaba1-73f9-4e49-b6d3-0fb22dbd6e39",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "BmOvmYMx0Orbmol3",
+          "name": "Linkedin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  \"author\": \"urn:li:person:\" + $(\"Get LinkedIn User Info\").first().json.sub,\n  \"lifecycleState\": \"PUBLISHED\",\n  \"specificContent\": {\n    \"com.linkedin.ugc.ShareContent\": {\n      \"shareCommentary\": {\n        \"text\": $(\"Retrieve pending draft from Supabase\").first().json.draft_text\n      },\n      \"shareMediaCategory\": \"NONE\"\n    }\n  },\n  \"visibility\": {\n    \"com.linkedin.ugc.MemberNetworkVisibility\": \"PUBLIC\"\n  }\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        880,
+        -448
+      ],
+      "name": "Publish to LinkedIn",
+      "id": "9625a26e-50c5-41dc-9f47-f6b6c0f5b6d7",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "BmOvmYMx0Orbmol3",
+          "name": "Linkedin"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bf54b002-c314-45d9-98fe-d329927f80b4",
+              "leftValue": "={{ $json.draft_text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        -432
+      ],
+      "id": "25f0d0cc-8569-49d3-8bdf-961dfa89611e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{\"https://utuivhrufrfzhdnmvxuy.supabase.co/rest/v1/pending_drafts?id=eq.\" + $(\"Retrieve pending draft from Supabase\").first().json.id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  \"status\": \"published\",\n  \"linkedin_post_id\": $(\"Publish to LinkedIn\").first().json.id\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        -464
+      ],
+      "id": "19a837b6-b75b-4cc9-aa56-cc210a4e69e1",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bf54b002-c314-45d9-98fe-d329927f80b4",
+              "leftValue": "={{ $json.draft_text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        512,
+        -256
+      ],
+      "id": "268e3071-94c5-488e-93e4-89b049f84cef",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{\n\"https://utuivhrufrfzhdnmvxuy.supabase.co/rest/v1/pending_drafts?id=eq.\" +\n$json.id\n}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  \"status\": \"cancelled\"\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        736,
+        -272
+      ],
+      "id": "d8f9a46f-c978-4cd4-93ea-8f5d8580470f",
+      "name": "Cancel Draft"
+    },
+    {
+      "parameters": {
+        "url": "=https://utuivhrufrfzhdnmvxuy.supabase.co/rest/v1/pending_drafts?select=*&chat_id=eq.{{$json.chat_id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        336,
+        -256
+      ],
+      "id": "15c86a21-c952-4d66-8bbe-37411d000fb8",
+      "name": "Retrieve pending draft from Supabase1"
+    },
+    {
+      "parameters": {
+        "chatId": "6257440017",
+        "text": "✏️ Send me the updated LinkedIn post.  I'll replace the current draft with whatever you send next.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        224
+      ],
+      "id": "8f9e5f7a-f4bc-48e4-b978-37787cbbbb7a",
+      "name": "Send a text message2",
+      "webhookId": "592b14fd-202d-4c9a-8a2b-00f0f86b9b28",
+      "credentials": {
+        "telegramApi": {
+          "id": "e1W9mvxSdzSdO91l",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://utuivhrufrfzhdnmvxuy.supabase.co/rest/v1/pending_drafts?chat_id=eq.{{$json.chat_id}}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "eq.pending"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_W4szqRvkvbdsVg8EnNnM1A_rIBtLtF2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"awaiting_edit\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -224,
+        224
+      ],
+      "id": "9178421a-35f8-4dbf-b1cd-98dbdcc5f8ed",
+      "name": "Awaiting edits"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = ($json.message_text || \"\")\n  .trim()\n  .toLowerCase();\n\nreturn [{\n  json: {\n    ...$json,\n    normalizedText: text\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        -288
+      ],
+      "id": "e49e2f76-2a99-413b-87a4-63f47539e050",
+      "name": "Process Telegram Input"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Process Telegram Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Retrieve pending draft from Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retrieve pending draft from Supabase1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve pending draft from Supabase": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn User Info": {
+      "main": [
+        [
+          {
+            "node": "Publish to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get LinkedIn User Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Cancel Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve pending draft from Supabase1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Draft": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        []
+      ]
+    },
+    "Awaiting edits": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Telegram Input": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Africa/Lagos",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1e3c5e93-d715-427c-98a5-d0921e3437aa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b4c383bd9c8e3e5b646ea18b9fb1d2d3df0156d6c1b19b4ebff8e945e07d2a00"
+  },
+  "id": "JLgEm5AccrbxELWv",
+  "tags": []
+}
