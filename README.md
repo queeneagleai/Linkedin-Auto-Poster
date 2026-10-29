@@ -50,7 +50,7 @@ Here's what this automation does, step by step:
 
 ---
 
-##  Demo
+##  Screenshot of the workflow
 
 <img width="729" height="327" alt="image" src="https://github.com/user-attachments/assets/ac665a6a-7eec-4188-9cf1-d2c205b72ac8" />
 
